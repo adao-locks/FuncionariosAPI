@@ -9,11 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
-// EF Core InMemory
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// EF Core SQL Server (usa a connection string DefaultConnection em appsettings.json)
+var defaultConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=(localdb)\\mssqllocaldb;Database=Mod10Db;Trusted_Connection=True;";
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("Mod10Db"));
+    options.UseSqlServer(defaultConn));
 
 // DI registrations
 builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
@@ -24,7 +28,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Funcionários API v1");
+        c.DocumentTitle = "Funcionários API - API de Funcionários";
+    });
 }
 
 app.UseHttpsRedirection();

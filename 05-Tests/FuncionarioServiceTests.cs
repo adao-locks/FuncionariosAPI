@@ -13,11 +13,17 @@ namespace Tests
         [Fact]
         public async Task CreateAndGetAll_ReturnsCreatedEntity()
         {
+            var dbName = $"TestDb_CreateAndGetAll_{System.Guid.NewGuid():N}";
+            var connection = $"Server=(localdb)\\mssqllocaldb;Database={dbName};Trusted_Connection=True;MultipleActiveResultSets=true";
+
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb_CreateAndGetAll")
+                .UseSqlServer(connection)
                 .Options;
 
             using var context = new AppDbContext(options);
+            // garantir banco criado
+            context.Database.EnsureCreated();
+
             var repo = new FuncionarioRepository(context);
             var service = new FuncionarioService(repo);
 
@@ -34,6 +40,9 @@ namespace Tests
             var all = await service.GetAllAsync();
 
             Assert.Contains(all, f => f.Id == created.Id && f.Nome == "Joao");
+
+            // cleanup
+            context.Database.EnsureDeleted();
         }
     }
 }

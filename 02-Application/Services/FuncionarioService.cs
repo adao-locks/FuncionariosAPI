@@ -42,14 +42,6 @@ namespace Application.Services
             };
         }
 
-        public async Task DeleteAsync(int id)
-        {
-            var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return;
-            _repository.Delete(entity);
-            await _repository.SaveChangesAsync();
-        }
-
         public async Task<IEnumerable<FuncionarioOutputDto>> GetAllAsync()
         {
             var list = await _repository.GetAllAsync();
@@ -67,7 +59,7 @@ namespace Application.Services
         public async Task<FuncionarioOutputDto?> GetByIdAsync(int id)
         {
             var e = await _repository.GetByIdAsync(id);
-            if (e == null) return null;
+            if (e == null) throw new KeyNotFoundException($"Funcionario com id {id} nao encontrado");
             return new FuncionarioOutputDto
             {
                 Id = e.Id,
@@ -82,12 +74,20 @@ namespace Application.Services
         public async Task UpdateAsync(int id, FuncionarioInputDto dto)
         {
             var entity = await _repository.GetByIdAsync(id);
-            if (entity == null) return;
+            if (entity == null) throw new KeyNotFoundException($"Funcionario com id {id} nao encontrado");
             entity.Nome = dto.Nome;
             entity.Cargo = dto.Cargo;
             entity.Salario = dto.Salario;
             entity.Departamento = dto.Departamento;
             _repository.Update(entity);
+            await _repository.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) throw new KeyNotFoundException($"Funcionario com id {id} nao encontrado");
+            _repository.Delete(entity);
             await _repository.SaveChangesAsync();
         }
     }
