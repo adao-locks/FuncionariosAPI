@@ -7,6 +7,7 @@
     <RootNamespace>_01_Presentation</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
+    <UserSecretsId>c3f9b8a2-7d4e-4b9a-9f2a-1a2b3c4d5e6f</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
