@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -51,6 +52,7 @@ namespace Presentation.Controllers
         /// </summary>
         /// <param name="dto">Dados do funcionário</param>
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(typeof(FuncionarioOutputDto), 201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Create([FromBody] FuncionarioInputDto dto)
@@ -65,6 +67,7 @@ namespace Presentation.Controllers
         /// <param name="id">Id do funcionário</param>
         /// <param name="dto">Dados atualizados</param>
         [HttpPut("{id}")]
+        [Authorize]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -86,6 +89,7 @@ namespace Presentation.Controllers
         /// </summary>
         /// <param name="id">Id do funcionário</param>
         [HttpDelete("{id}")]
+        [Authorize]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(int id)
