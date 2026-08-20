@@ -1,4 +1,6 @@
 using Infrastructure.Data;
+using System.Reflection;
+using System.IO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -23,6 +25,10 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API para gerenciar funcionários (Create, Read, Update, Delete)."
     });
+    // Include XML comments (gerados pelo projeto) no Swagger UI
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 });
 
 // EF Core SQL Server (usa a connection string DefaultConnection em appsettings.json)
@@ -32,7 +38,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSection.GetValue<string>("Key") ?? throw new InvalidOperationException("JWT Key not configured");
+var jwtKey = jwtSection.GetValue<string>("Key");
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException(
+        "JWT Key not configured. Adicione a chave secreta via 'dotnet user-secrets set \"Jwt:Key\" \"<secret>\"' no projeto 01-Presentation ou defina a variável de ambiente 'Jwt__Key'.");
+}
 var jwtIssuer = jwtSection.GetValue<string>("Issuer") ?? "Mod10Api";
 var jwtAudience = jwtSection.GetValue<string>("Audience") ?? "Mod10Clients";
 
@@ -83,6 +94,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Autenticação / Autorização
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
